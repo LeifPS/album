@@ -60,7 +60,7 @@ function nameLines(name) {
   return [{ text: best.a, fs, y: 586 }, { text: best.b, fs, y: 586 + fs * 1.05 }];
 }
 
-export function cardSVG(card, { bleed = false, round = true } = {}) {
+export function cardSVG(card, { bleed = false, round = true, px = null } = {}) {
   const al = ALBUM_BY_ID[card.album];
   const r = card.rarity;
   const b = bleed ? BLEED : 0;
@@ -99,7 +99,9 @@ ${motif}
 ${lines}
 ${ornaments(r)}
 </g>`;
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${CARD_W + 2 * b}" height="${CARD_H + 2 * b}">${body}</svg>`;
+  const ww = CARD_W + 2 * b, hh = CARD_H + 2 * b;
+  const wAttr = px ? px : ww, hAttr = px ? Math.round(px * hh / ww) : hh;   // px: feste Pixelgröße (für den Druck)
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" width="${wAttr}" height="${hAttr}">${body}</svg>`;
 }
 
 const cache = new Map();

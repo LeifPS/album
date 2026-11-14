@@ -74,3 +74,10 @@ input[type=text] { background: var(--panel2); color: var(--text); border: 1px so
 .cw { position: relative; display: block; }
 .cnt { position: absolute; right: 6px; bottom: 6px; background: #101522; color: #fff; border: 2px solid var(--accent); border-radius: 999px; padding: 2px 9px; font-weight: 800; font-size: 13px; }
 .cards .missing img, .modal img.missing { filter: grayscale(1) brightness(.35); }
+
+/* ---- Etappe 3 ---- */
+.check { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+.check input, .sel input { width: 20px; height: 20px; accent-color: var(--accent); }
+.sel { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+input[type=number] { background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; width: 150px; }
+.btn[disabled] { opacity: .5; cursor: default; }
