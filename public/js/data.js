@@ -89,26 +89,25 @@ const RAW = [
     ['Mars', 6], ['Galaxie', 6] ] },
 ];
 
-export const ALBUMS = RAW.map((a, ai) => ({
-  id: a.id,
-  name: a.name,
-  bg: a.bg,
-  order: ai,
-  cards: a.cards.map(([name, rarity], i) => ({
+export const ALBUMS = RAW.map((a, ai) => {
+  const cards = a.cards.map(([name, rarity], i) => ({
     id: `${a.id}-${slug(name)}`,
     album: a.id,
     key: slug(name),
     name,
     rarity,
     slot: i,
-  })),
-}));
+  }));
+  // Themenkarte des Sets: trägt den Albumnamen und die Seltenheit der seltensten Karte des Albums
+  const setCard = { id: `${a.id}-set`, album: a.id, key: 'set', name: a.name, rarity: Math.max(...cards.map(c => c.rarity)), slot: 10, theme: true };
+  return { id: a.id, name: a.name, bg: a.bg, order: ai, cards, setCard, gallery: [...cards, setCard] };
+});
 
 export const ALBUM_BY_ID = Object.fromEntries(ALBUMS.map(a => [a.id, a]));
-export const ALL_CARDS = ALBUMS.flatMap(a => a.cards);
+export const ALL_CARDS = ALBUMS.flatMap(a => a.gallery);   // 12 x (10 Karten + Themenkarte)
 export const CARD_BY_ID = Object.fromEntries(ALL_CARDS.map(c => [c.id, c]));
 
-// Sanity-Check beim Laden: jedes Album hat genau 10 Karten.
+// Sanity-Check beim Laden: jedes Album hat genau 10 Karten (plus die Themenkarte).
 for (const a of ALBUMS) {
   if (a.cards.length !== 10) console.error('Album mit falscher Kartenzahl:', a.id, a.cards.length);
 }
