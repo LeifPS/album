@@ -10,7 +10,7 @@ const fresh = () => ({
   ],
   packs: [],      // { id, ts, profile, rarity, size, name, label, cards:[ids], printed: null|timestamp }
   presets: [],    // eigene Vorlagen { id, name, rarity, size, albums }
-  settings: { duplex: true, flip: 'long', offsetX: 0, offsetY: 0, cutMarks: true },
+  settings: { duplex: true, flip: 'long', offsetX: 0, offsetY: 0 },
   ui: { profile: 'erik' },
 });
 

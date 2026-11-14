@@ -1,5 +1,5 @@
 // Druck-Layout und PDF-Erzeugung: A4, Packs Klein (4 Karten, halbe Seite) und Jumbo (8 Karten, ganze Seite).
-// Vorderseite: Karten mit Anschnitt und Schnittlinien. Rückseite: fortlaufendes Muster + Info-Feld, spiegelbar und mit Versatz.
+// Vorderseite: Karten in Originalgröße, ohne Anschnitt und ohne Schnittlinien (Farbe nur dort, wo geschnitten wird). Rückseite: fortlaufendes Muster + Info-Feld, spiegelbar und mit Versatz.
 import { CARD_BY_ID, RARITIES } from './data.js';
 import { cardSVG } from './card.js';
 import { SIZES } from './draw.js';
@@ -9,7 +9,7 @@ import { makePDF } from './pdf.js';
 export const DPI = 300;
 export const PX = DPI / 25.4;
 export const PAGE = { W: 210, H: 297 };
-export const LAY = { cw: 45, ch: 70, bleed: 1.5, gap: 4, over: 4, x0: 9, cols: 4 };
+export const LAY = { cw: 45, ch: 70, bleed: 0, gap: 4, over: 4, x0: 9, cols: 4 };
 const mm = v => v * PX;
 const PW = Math.round(mm(PAGE.W)), PH = Math.round(mm(PAGE.H));
 
@@ -74,7 +74,7 @@ const cardImgs = new Map();
 async function cardImg(id) {
   if (!cardImgs.has(id)) {
     const px = Math.round(mm(LAY.cw + 2 * LAY.bleed));
-    cardImgs.set(id, svgImg(cardSVG(CARD_BY_ID[id], { bleed: true, round: false, px }), px, Math.round(px * (700 + 30) / (450 + 30))));
+    cardImgs.set(id, svgImg(cardSVG(CARD_BY_ID[id], { bleed: false, round: false, px }), px, Math.round(px * 700 / 450)));
   }
   return cardImgs.get(id);
 }
@@ -92,22 +92,19 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
 
-let tilePattern = null;
 function backPattern(ctx) {
   const s = Math.round(mm(10));
   const t = document.createElement('canvas');
   t.width = t.height = s;
   const c = t.getContext('2d');
-  c.fillStyle = '#16224a'; c.fillRect(0, 0, s, s);
-  c.strokeStyle = '#2d428f'; c.lineWidth = mm(0.5);
+  c.fillStyle = '#fff'; c.fillRect(0, 0, s, s);          // Papierweiß: keine Fläche gedruckt
+  c.strokeStyle = '#b9c4ea'; c.lineWidth = mm(0.22);
   c.beginPath(); c.moveTo(s / 2, 0); c.lineTo(s, s / 2); c.lineTo(s / 2, s); c.lineTo(0, s / 2); c.closePath(); c.stroke();
-  c.strokeStyle = '#223575'; c.lineWidth = mm(0.35);
-  c.beginPath(); c.moveTo(s / 2, s * 0.22); c.lineTo(s * 0.78, s / 2); c.lineTo(s / 2, s * 0.78); c.lineTo(s * 0.22, s / 2); c.closePath(); c.stroke();
-  c.fillStyle = '#ffd43b'; c.globalAlpha = 0.8;
-  const d = s * 0.07;
+  c.strokeStyle = '#d3daf2'; c.lineWidth = mm(0.18);
+  c.beginPath(); c.moveTo(s / 2, s * 0.26); c.lineTo(s * 0.74, s / 2); c.lineTo(s / 2, s * 0.74); c.lineTo(s * 0.26, s / 2); c.closePath(); c.stroke();
+  c.fillStyle = '#c5cdee';
+  const d = s * 0.05;
   c.beginPath(); c.moveTo(s / 2, s / 2 - d); c.lineTo(s / 2 + d, s / 2); c.lineTo(s / 2, s / 2 + d); c.lineTo(s / 2 - d, s / 2); c.closePath(); c.fill();
-  c.globalAlpha = 0.6; c.fillStyle = '#5d7bd6';
-  for (const [x, y] of [[0, 0], [s, 0], [0, s], [s, s]]) { c.beginPath(); c.arc(x, y, s * 0.045, 0, 7); c.fill(); }
   return ctx.createPattern(t, 'repeat');
 }
 
@@ -126,22 +123,22 @@ async function drawPanel(ctx, r, pack) {
   const { x, y, w, h } = r;
   const rid = pack.rarity;
   roundRect(ctx, mm(x), mm(y), mm(w), mm(h), mm(4));
-  ctx.fillStyle = '#101a3a'; ctx.fill();
-  ctx.lineWidth = mm(1.4); ctx.strokeStyle = rarityGradient(ctx, rid, mm(x), mm(y), mm(w), mm(h)); ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.fill();
+  ctx.lineWidth = mm(0.5); ctx.strokeStyle = rarityGradient(ctx, rid, mm(x), mm(y), mm(w), mm(h)); ctx.stroke();
 
-  const sym = 30 * u;
+  const sym = 22 * u;
   const stops = RARITIES[rid].stops.map((c, i, a) => `<stop offset="${(i / (a.length - 1)).toFixed(3)}" stop-color="${c}"/>`).join('');
-  const symSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${Math.round(mm(sym))}" height="${Math.round(mm(sym))}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">${stops}</linearGradient></defs>${rarityShape(rid, 'url(#g)')}</svg>`;
+  const symSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${Math.round(mm(sym))}" height="${Math.round(mm(sym))}"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">${stops}</linearGradient></defs>${rarityShape(rid, '#fff').replace(/stroke-width="5"/g, 'stroke-width="3"').replace('#1d1b2e', 'url(#g)').replace(/#1d1b2e/g, '#2a3358')}</svg>`;
   const sx = x + 8 * u, sy = y + (h - sym) / 2;
   ctx.drawImage(await svgImg(symSVG, Math.round(mm(sym)), Math.round(mm(sym))), mm(sx), mm(sy), mm(sym), mm(sym));
 
   const tx = sx + sym + 8 * u, maxW = x + w - tx - 8 * u;
   const lines = [];
   const k = u === 1 ? 0.88 : 1;     // kleines Feld: etwas kompakter, damit alles Platz hat
-  lines.push({ t: pack.name, wgt: '800', size: 9 * u * k, col: '#ffffff' });
-  lines.push({ t: `Für ${pack.profileName}`, wgt: '800', size: 13 * u * k, col: '#ffd43b' });
-  lines.push({ t: `${SIZES[pack.size].name}-Pack, ${SIZES[pack.size].count} Karten, ${RARITIES[rid].name}`, wgt: '600', size: 5 * u * k, col: '#c8d2f2' });
-  if (pack.label) lines.push({ t: pack.label, wgt: '600', size: 5 * u * k, col: '#c8d2f2' });
+  lines.push({ t: pack.name, wgt: '800', size: 9 * u * k, col: '#1b2440' });
+  lines.push({ t: `Für ${pack.profileName}`, wgt: '800', size: 13 * u * k, col: '#1b2440' });
+  lines.push({ t: `${SIZES[pack.size].name}-Pack, ${SIZES[pack.size].count} Karten, ${RARITIES[rid].name}`, wgt: '600', size: 5 * u * k, col: '#4d5678' });
+  if (pack.label) lines.push({ t: pack.label, wgt: '600', size: 5 * u * k, col: '#4d5678' });
   const gap = 1.6 * u;
   const total = lines.reduce((s, l) => s + l.size, 0) + gap * (lines.length - 1);
   const noteH = 3.4 * u;
@@ -155,32 +152,15 @@ async function drawPanel(ctx, r, pack) {
     cy += l.size + gap;
   }
   const small = noteH;
-  const note = 'Umdrehen und aufdecken. Entlang der gestrichelten Linien ausschneiden.';
+  const note = 'Umdrehen und aufdecken.';
   const sz = fitFont(ctx, note, '500', small, maxW);
-  ctx.fillStyle = '#8f9cc8';
+  ctx.fillStyle = '#8a93b4';
   ctx.fillText(note, mm(tx), mm(y + h - small - 3 * u));
 }
 
 function dashed(ctx, x1, y1, x2, y2, solid = false) {
   ctx.setLineDash(solid ? [] : [mm(1.6), mm(1.2)]);
   ctx.beginPath(); ctx.moveTo(mm(x1), mm(y1)); ctx.lineTo(mm(x2), mm(y2)); ctx.stroke();
-}
-
-function drawCutMarks(ctx, sheet) {
-  ctx.strokeStyle = '#444'; ctx.lineWidth = mm(0.25);
-  for (const s of sheet.slots) {
-    const { x, y, w, h, rows } = s.grid;
-    for (let c = 1; c < LAY.cols; c++) {
-      const gxc = x + c * (LAY.cw + LAY.gap) - LAY.gap / 2;
-      dashed(ctx, gxc, y - 3.5, gxc, y + h + 3.5);
-    }
-    if (rows === 2) { const gy = y + LAY.ch + LAY.gap / 2; dashed(ctx, x - 4.5, gy, x + w + 4.5, gy); }
-    // Eckmarken außen
-    for (const ex of [x, x + w]) { dashed(ctx, ex, y - 4.5, ex, y - 2.5, true); dashed(ctx, ex, y + h + 2.5, ex, y + h + 4.5, true); }
-    for (const ey of [y, y + h]) { dashed(ctx, x - 4.5, ey, x - 2.5, ey, true); dashed(ctx, x + w + 2.5, ey, x + w + 4.5, ey, true); }
-  }
-  if (sheet.slots.length === 2) { ctx.strokeStyle = '#777'; dashed(ctx, 4.5, PAGE.H / 2, PAGE.W - 4.5, PAGE.H / 2); }
-  ctx.setLineDash([]);
 }
 
 export async function drawFront(ctx, sheet, S) {
@@ -193,7 +173,6 @@ export async function drawFront(ctx, sheet, S) {
     }
     if (!S.duplex) await drawPanel(ctx, slot.panel, slot.pack);
   }
-  if (S.cutMarks) drawCutMarks(ctx, sheet);
 }
 
 export async function drawBack(ctx, sheet, S) {

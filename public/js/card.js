@@ -3,7 +3,7 @@
 import { RARITIES, ALBUM_BY_ID } from './data.js';
 import { artFor } from './art/index.js';
 import { ALBUM_ICONS, rarityShape } from './icons.js';
-import { K, star } from './art/helpers.js';
+import { K } from './art/helpers.js';
 
 export const CARD_W = 450, CARD_H = 700;      // Einheiten (10 pro mm)
 export const BLEED = 15;                       // 1,5 mm Anschnitt
@@ -29,25 +29,12 @@ function rays(cx, cy, n) {
   return `<g fill="#fff" opacity=".08">${s}</g>`;
 }
 
-function ornaments(r) {
-  if (r < 3) return '';
-  const dia = (x, y, s, fill = '#fff') => `<polygon points="${x},${y - s} ${x + s},${y} ${x},${y + s} ${x - s},${y}" fill="${fill}" stroke="${K}" stroke-width="2.5"/>`;
-  const spark = (x, y, s) => `<polygon points="${star(x, y, s, s * 0.3, 4, -90)}" fill="#fff" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>`;
-  let out = '';
-  const corners = [[13, 13], [437, 13], [13, 687], [437, 687]];
-  if (r === 3) out += corners.map(([x, y]) => dia(x, y, 8)).join('');
-  if (r === 4) out += corners.map(([x, y]) => dia(x, y, 10)).join('') + [[225, 12], [225, 688], [12, 350], [438, 350]].map(([x, y]) => dia(x, y, 7)).join('');
-  if (r === 5) out += corners.map(([x, y]) => dia(x, y, 11, '#fff6bd')).join('') + [[225, 12], [225, 688]].map(([x, y]) => dia(x, y, 8, '#ffd9a0')).join('') + [[12, 350], [438, 350]].map(([x, y]) => dia(x, y, 8, '#ffd9a0')).join('');
-  if (r === 6) out += corners.map(([x, y]) => spark(x, y, 15)).join('') + [[225, 12], [225, 688], [12, 350], [438, 350]].map(([x, y]) => spark(x, y, 11)).join('');
-  return out;
-}
-
 // Name auf 1-2 Zeilen verteilen
 function nameLines(name) {
   const t = name.toUpperCase();
-  const MAXW = 346;
+  const MAXW = 372;
   const one = Math.min(54, MAXW / (t.length * 0.6));
-  if (t.length <= 11 || !t.includes(' ')) return [{ text: t, fs: one, y: 604 }];
+  if (t.length <= 11 || !t.includes(' ')) return [{ text: t, fs: one, y: 612 }];
   // an der Leerstelle teilen, die die Zeilen am gleichmäßigsten macht
   const words = t.split(' ');
   let best = null;
@@ -57,7 +44,7 @@ function nameLines(name) {
     if (!best || m < best.m) best = { a, b, m };
   }
   const fs = Math.min(46, MAXW / (best.m * 0.6));
-  return [{ text: best.a, fs, y: 586 }, { text: best.b, fs, y: 586 + fs * 1.05 }];
+  return [{ text: best.a, fs, y: 594 }, { text: best.b, fs, y: 594 + fs * 1.05 }];
 }
 
 export function cardSVG(card, { bleed = false, round = true, px = null } = {}) {
@@ -75,29 +62,25 @@ export function cardSVG(card, { bleed = false, round = true, px = null } = {}) {
 
   const body = `
 <defs>${gradients(card)}
-<clipPath id="win"><rect x="36" y="36" width="378" height="484" rx="9"/></clipPath>
+<clipPath id="win"><rect x="18" y="18" width="414" height="500" rx="8"/></clipPath>
 <clipPath id="outer"><rect width="450" height="700" rx="30"/></clipPath></defs>
 <g ${round && !bleed ? 'clip-path="url(#outer)"' : ''}>
 <rect x="${-b}" y="${-b}" width="${CARD_W + 2 * b}" height="${CARD_H + 2 * b}" fill="url(#fr${r})"/>
-<rect x="6" y="6" width="438" height="688" rx="24" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>
-<rect x="24" y="24" width="402" height="652" rx="12" fill="#101522" stroke="${K}" stroke-width="3"/>
+<rect x="12" y="12" width="426" height="676" rx="14" fill="#101522" stroke="${K}" stroke-width="3"/>
 <g clip-path="url(#win)">
-<svg x="36" y="36" width="378" height="484" viewBox="0 0 200 256">
+<svg x="18" y="18" width="414" height="500" viewBox="0 0 200 256" preserveAspectRatio="xMidYMid slice">
 <rect width="200" height="256" fill="url(#bg-${al.id})"/>
 ${rays(100, 150, 14)}
 <rect width="200" height="256" fill="url(#vig)"/>
 ${motif}
 </svg></g>
-<rect x="36" y="36" width="378" height="484" rx="9" fill="none" stroke="${K}" stroke-width="4"/>
-<g transform="translate(36 36)"><circle cx="45" cy="45" r="38" fill="#101522" stroke="url(#fr${r})" stroke-width="6"/>
-<svg x="12" y="12" width="66" height="66" viewBox="0 0 100 100">${rarityShape(r, `url(#fr${r})`)}</svg></g>
-<g transform="translate(300 36)"><circle cx="45" cy="45" r="38" fill="${al.bg[1]}" stroke="#fff" stroke-width="5" stroke-opacity=".9"/>
-<svg x="17" y="17" width="56" height="56" viewBox="0 0 100 100">${ALBUM_ICONS[al.id]({ fill: '#fff', dark: al.bg[1] })}</svg></g>
-<rect x="36" y="532" width="378" height="128" rx="9" fill="#0f1424" stroke="${K}" stroke-width="3"/>
-<rect x="36" y="532" width="378" height="10" fill="url(#fr${r})"/>
-<rect x="36" y="650" width="378" height="10" fill="url(#fr${r})"/>
+<rect x="18" y="18" width="414" height="500" rx="8" fill="none" stroke="${K}" stroke-width="4"/>
+<svg x="22" y="22" width="92" height="92" viewBox="0 0 100 100">${rarityShape(r, `url(#fr${r})`)}</svg>
+<svg x="22" y="112" width="92" height="92" viewBox="0 0 100 100"><g stroke="${K}" stroke-width="12" stroke-linejoin="round" stroke-linecap="round">${ALBUM_ICONS[al.id]({ fill: K, dark: K })}</g>${ALBUM_ICONS[al.id]({ fill: '#fff', dark: al.bg[1] })}</svg>
+<rect x="18" y="530" width="414" height="152" rx="8" fill="#0f1424" stroke="${K}" stroke-width="3"/>
+<rect x="18" y="530" width="414" height="9" fill="url(#fr${r})"/>
+<rect x="18" y="673" width="414" height="9" fill="url(#fr${r})"/>
 ${lines}
-${ornaments(r)}
 </g>`;
   const ww = CARD_W + 2 * b, hh = CARD_H + 2 * b;
   const wAttr = px ? px : ww, hAttr = px ? Math.round(px * hh / ww) : hh;   // px: feste Pixelgröße (für den Druck)
