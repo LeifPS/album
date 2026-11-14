@@ -201,8 +201,11 @@ export async function renderPDF(packs, S, onProgress = () => {}) {
   const total = sheets.length * (S.duplex ? 2 : 1);
   let done = 0;
   for (const sheet of sheets) {
+    // Standard: erst die Rückseite, dann die Vorderseite - so kommt das Blatt mit dem Muster nach oben aus dem Drucker
+    const backFirst = S.duplex && S.backFirst !== false;
+    if (backFirst) { await drawBack(ctx, sheet, S); pages.push(await toJpeg(canvas)); onProgress(++done, total); }
     await drawFront(ctx, sheet, S); pages.push(await toJpeg(canvas)); onProgress(++done, total);
-    if (S.duplex) { await drawBack(ctx, sheet, S); pages.push(await toJpeg(canvas)); onProgress(++done, total); }
+    if (S.duplex && !backFirst) { await drawBack(ctx, sheet, S); pages.push(await toJpeg(canvas)); onProgress(++done, total); }
   }
   return { bytes: makePDF(pages, PT.W, PT.H), sheets: sheets.length, pages: pages.length };
 }
@@ -235,7 +238,7 @@ export async function renderTestPDF(S, applyCorr) {
   ctx.strokeStyle = '#000'; ctx.lineWidth = mm(0.3); dashed(ctx, 55, 100, 155, 100, true);
   dashed(ctx, 55, 97, 55, 103, true); dashed(ctx, 155, 97, 155, 103, true);
   ctx.font = `${mm(3.5)}px Arial, sans-serif`; ctx.fillText('Diese Linie muss genau 100 mm lang sein', mm(58), mm(103.5));
-  pages.push(await toJpeg(canvas));
+  const frontPage = await toJpeg(canvas);
   // Rückseite: rot, an den gespiegelten Punkten
   ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, PW, PH);
   TEST_POINTS.forEach(([x, y], i) => {
@@ -244,6 +247,7 @@ export async function renderTestPDF(S, applyCorr) {
   });
   ctx.fillStyle = '#d00'; ctx.font = `bold ${mm(5)}px Arial, sans-serif`; ctx.textBaseline = 'top';
   ctx.fillText('RÜCKSEITE - Testseite', mm(30), mm(8));
-  pages.push(await toJpeg(canvas));
+  const backPage = await toJpeg(canvas);
+  pages.push(...(S.backFirst !== false ? [backPage, frontPage] : [frontPage, backPage]));
   return { bytes: makePDF(pages, PT.W, PT.H), pages: 2 };
 }

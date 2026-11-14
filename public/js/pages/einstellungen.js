@@ -9,6 +9,7 @@ export function pageEinstellungen(main) {
   main.innerHTML = `<h1>Einstellungen</h1>
   <section class="box"><h3>Druck</h3>
     <label class="check"><input type="checkbox" id="duplex" ${S.duplex ? 'checked' : ''}> Beidseitig drucken (Rückseite mit Muster und Info-Feld)</label>
+    <label class="check"><input type="checkbox" id="bf" ${S.backFirst !== false ? 'checked' : ''}> Rückseite zuerst im PDF (Blatt kommt mit dem Muster nach oben aus dem Drucker, die Karten sind nicht zu sehen)</label>
     <h3>Wende-Art des Druckers</h3>
     <div class="chips">
       <button class="chip ${S.flip === 'long' ? 'on' : ''}" data-flip="long">Lange Kante (Standard)</button>
@@ -47,6 +48,7 @@ export function pageEinstellungen(main) {
   const msg = t => { const m = $('#msg', main); m.hidden = false; m.textContent = t; };
   const set = fn => store.update(s => fn(s.settings));
   $('#duplex', main).onchange = e => set(s => { s.duplex = e.target.checked; });
+  $('#bf', main).onchange = e => set(s => { s.backFirst = e.target.checked; });
   main.querySelectorAll('[data-flip]').forEach(b => b.onclick = () => { set(s => { s.flip = b.dataset.flip; }); pageEinstellungen(main); });
   const num = v => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : 0; };
   $('#ox', main).onchange = e => set(s => { s.offsetX = num(e.target.value); });

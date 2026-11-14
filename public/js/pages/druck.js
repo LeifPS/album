@@ -31,7 +31,7 @@ export function pageDruck(main) {
         <div class="actions"><button class="btn" data-printed="${p.id}">${icon('check', 16)} Als gedruckt markieren</button><button class="btn" data-remove="${p.id}">${icon('trash', 16)} Entfernen</button></div></div>`).join('')
       : '<p class="hint">Die Druckliste ist leer. Zieh zuerst unter <a href="#/packs">Packs</a> einen Pack.</p>'}
     ${queue.length ? `<div class="actions"><button class="btn primary" id="makepdf" ${chosen.length && !busy ? '' : 'disabled'}>${icon('print', 16)} ${busy || `PDF erstellen (${chosen.length} Pack${chosen.length === 1 ? '' : 's'})`}</button></div>
-    <p class="hint">${S.duplex ? 'Beidseitig: Seite 1 Vorderseite, Seite 2 Rückseite. Im Druckdialog "Beidseitig" einschalten und Größe auf 100 % lassen.' : 'Nur Vorderseite (Beidseitig ist in den Einstellungen aus).'}
+    <p class="hint">${S.duplex ? (S.backFirst !== false ? 'Beidseitig: Seite 1 Rückseite, Seite 2 Vorderseite (Karten).' : 'Beidseitig: Seite 1 Vorderseite, Seite 2 Rückseite.') + ' Im Druckdialog "Beidseitig" einschalten und Größe auf 100 % lassen.' : 'Nur Vorderseite (Beidseitig ist in den Einstellungen aus).'}
       Zwei kleine Packs teilen sich ein Blatt.</p>` : ''}
     ${result ? `<div class="note"><b>PDF fertig:</b> ${result.sheets} Blatt, ${result.pages} Seiten, ${(result.blob.size / 1048576).toFixed(1)} MB.
       <div class="actions"><button class="btn primary" id="open">PDF öffnen</button><button class="btn" id="share">Teilen oder speichern</button>
