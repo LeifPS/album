@@ -41,7 +41,7 @@ export function pageEinstellungen(main) {
     <p class="note" id="msg" hidden></p>
   </section>
   <section class="box"><h3>Alles zurücksetzen</h3>
-    <p class="hint">Löscht Druckliste, Verlauf, Sammlungen und eigene Vorlagen (die Druck-Einstellungen auch).</p>
+    <p class="hint">Löscht Druckliste, Verlauf, Gedruckt-Liste und eigene Vorlagen (die Druck-Einstellungen auch).</p>
     <div class="actions"><button class="btn danger" id="reset">${icon('trash', 16)} Alles löschen</button></div>
   </section>`;
 

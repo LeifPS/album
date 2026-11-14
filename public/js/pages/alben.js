@@ -34,7 +34,7 @@ function drawModal() {
   const n = owned ? (owned[c.id] || 0) : 1;
   $('#modal').innerHTML = `<button data-d="-1" aria-label="Zurück">${icon('chevL', 26)}</button>
     <div class="card-wrap"><img class="big ${n ? '' : 'missing'}" src="${cardURL(c)}" alt="${c.name}">
-    <div class="info">${c.name} - ${RARITIES[c.rarity].name} - Karte ${i + 1} von ${album.cards.length}${owned ? (n ? ` - ${n}x gesammelt` : ' - fehlt noch') : ''}</div></div>
+    <div class="info">${c.name} - ${RARITIES[c.rarity].name} - Karte ${i + 1} von ${album.cards.length}${owned ? (n ? ` - ${n}x gedruckt` : ' - noch nie gedruckt') : ''}</div></div>
     <button data-d="1" aria-label="Weiter">${icon('chevR', 26)}</button>`;
   $('#modal').querySelectorAll('button').forEach(b => b.onclick = e => { e.stopPropagation(); step(+b.dataset.d); });
 }

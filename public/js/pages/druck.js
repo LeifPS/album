@@ -23,7 +23,7 @@ export function pageDruck(main) {
 
   main.innerHTML = `
   <h1>Druck</h1>
-  <p class="sub">Packs in der Druckliste. Gedruckte Packs zählen zur Sammlung des Kindes.</p>
+  <p class="sub">Packs in der Druckliste. Als gedruckt markierte Packs erscheinen im Reiter "Gedruckt".</p>
   <section class="box"><h3>Druckliste (${queue.length})</h3>
     ${queue.length ? queue.map(p => `
       <div class="pack" data-id="${p.id}">

@@ -35,11 +35,11 @@ export function update(fn) { fn(state); save(); }
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 export const profileName = id => (state.profiles.find(p => p.id === id) || { name: id }).name;
 
-// Nur gedruckte Packs zählen zur Sammlung
-export function collection(profileId) {
+// Welche Karten wurden schon einmal gedruckt (egal für wen) und wie oft: { kartenId: Anzahl }
+export function printedCards() {
   const m = {};
   for (const p of state.packs) {
-    if (p.profile !== profileId || !p.printed) continue;
+    if (!p.printed) continue;
     for (const c of p.cards) m[c] = (m[c] || 0) + 1;
   }
   return m;

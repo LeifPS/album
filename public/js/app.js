@@ -10,7 +10,7 @@ const PAGES = [
   { id: 'alben', label: 'Alben', hash: '#/' },
   { id: 'packs', label: 'Packs', hash: '#/packs' },
   { id: 'druck', label: 'Druck', hash: '#/druck' },
-  { id: 'sammlung', label: 'Sammlung', hash: '#/sammlung' },
+  { id: 'sammlung', label: 'Gedruckt', hash: '#/sammlung' },
   { id: 'einstellungen', label: 'Einstellungen', hash: '#/einstellungen' },
 ];
 
